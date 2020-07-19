@@ -1,2 +1,4 @@
+package-lock.json
 secrets
 node_modules
+.vscode

@@ -14,6 +14,7 @@ const users = require("./routes/users");
 const port = process.env.PORT || 8000;
 
 // Middelwares
+
 //terminal outputs
 app.use(morgan("dev"));
 //parse as json
@@ -21,9 +22,9 @@ app.use(bodyparser.json());
 //Routes
 app.use("/users", users);
 app.get("/", (req, res) => {
-  res.send("Hey");
+  res.send("Hi there");
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at port ${port}`);
+  console.log(`Server is running at port http://localhost:${port}`);
 });
