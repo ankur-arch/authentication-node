@@ -12,7 +12,8 @@ const signToken = (user) => {
       iat: new Date().getTime(),
       data: { email: user.email },
     },
-    JWTSECRET
+    JWTSECRET,
+    { expiresIn: "1h" }
   );
 };
 
@@ -20,7 +21,8 @@ module.exports = {
   signUp: async (req, res, next) => {
     const { email, password } = req.value.body;
     const foundUser = await User.findOne({ email: email });
-    if (foundUser) res.status(403).json({ error: "Email is already in use" });
+    if (foundUser)
+      return res.status(403).json({ error: "Email is already in use" });
     else {
       const newUser = new User({
         email: email,
@@ -43,8 +45,13 @@ module.exports = {
   signIn: async (req, res, next) => {
     console.log("SignIn called");
     console.log("our user", req.user);
+    const user = req.user;
+    console.log("fuck", user);
+    const token = signToken(user);
     res.json({
       entry: "success",
+      user: req.user,
+      token,
     });
   },
 
@@ -53,5 +60,9 @@ module.exports = {
    */
   secret: async (req, res, next) => {
     console.log("Secret called");
+    res.json({
+      entry: "success",
+      user: req.user,
+    });
   },
 };

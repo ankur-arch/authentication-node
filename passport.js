@@ -27,7 +27,9 @@ passport.use(
           return done(null, false);
         }
         //else return user
-        done(null, user);
+        //stripping password from the headers
+        minifiedUser = { _id: user._id, email: user.email };
+        done(null, minifiedUser);
       } catch (error) {
         done(error, false);
       }
@@ -54,14 +56,13 @@ passport.use(
       try {
         const user = await User.findOne({ email });
         if (!user) {
-          return done(null, false);
+          return done(null, false, { message: "Try again" });
         }
         const isMatch = await user.passwordValidator(password);
         if (!isMatch) {
-          return done(null, false);
+          return done(null, false, { message: "Try again" });
         }
         const minifiedUser = { _id: user._id, email: user.email }; // removing password from our user model
-
         done(null, minifiedUser); // user is attached to request head (req.user)
       } catch (error) {
         done(error, false);
