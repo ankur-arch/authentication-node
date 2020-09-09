@@ -1,10 +1,11 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { JWTSECRET } = require("../secrets/secrets");
-
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
-const signToken = (user) => {
+const signToken = (user, key = null) => {
+  const Key = key !== null ? key : JWTSECRET;
   return jwt.sign(
     {
       iss: "shikhao.com", //issuer
@@ -12,7 +13,7 @@ const signToken = (user) => {
       iat: new Date().getTime(),
       data: { email: user.email },
     },
-    JWTSECRET,
+    Key,
     { expiresIn: "1h" }
   );
 };
@@ -46,7 +47,6 @@ module.exports = {
     console.log("SignIn called");
     console.log("our user", req.user);
     const user = req.user;
-    console.log("fuck", user);
     const token = signToken(user);
     res.json({
       entry: "success",
@@ -55,6 +55,31 @@ module.exports = {
     });
   },
 
+  forgetPasswordPost: async (req, res, next) => {
+    const { email, resettoken } = req.value.body;
+    const passwordResetToken = resettoken;
+    if (passwordResetToken) {
+      try {
+        const user = await User.findOne(
+          { resetPasswordToken: passwordResetToken },
+          (err, doc) => {
+            if (err) {
+              next(err);
+            } else {
+              if (doc) {
+                doc.password = "fuck";
+                doc.save();
+              } else return res.send("Invalid Token");
+            }
+          }
+        );
+      } catch (error) {
+        return res.send("Error on the database");
+      }
+      return res.send("Account does not exist");
+    }
+    return res.send("Send valid token");
+  },
   /**
    * Our secret route that we need a token to access
    */

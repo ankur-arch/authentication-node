@@ -9,7 +9,13 @@ const userSchema = new Schema({
     lowercase: true,
     unique: true,
   },
+  role: {
+    type: String,
+    enum: ["admin", "teacher", "student"],
+    default: "student",
+  },
   password: String,
+  resetPasswordToken: String,
 });
 
 /**
@@ -21,6 +27,21 @@ userSchema.pre("save", async function (next) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
     this.password = hashedPassword;
+    this.resetPasswordToken = await bcrypt.hash(hashedPassword, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+userSchema.pre("findOneAndUpdate", async function (next) {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    console.log("fired");
+    console.log("the password", this.password);
+    this.password = hashedPassword;
+    this.resetPasswordToken = await bcrypt.hash(hashedPassword, salt);
     next();
   } catch (error) {
     next(error);

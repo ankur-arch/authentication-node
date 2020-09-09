@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const bodyparser = require("body-parser");
 const mongoose = require("mongoose");
 const secrets = require("./secrets/secrets");
+
 mongoose.Promise = global.Promise;
 mongoose.connect(
   `mongodb+srv://${secrets.DATABASEUSERNAME}:${secrets.DATABASEPASSWORD}@shikhao-cluster.atqgg.mongodb.net/<dbname>?retryWrites=true&w=majority`,
@@ -11,6 +12,8 @@ mongoose.connect(
 
 const app = express();
 const users = require("./routes/users");
+const posts = require("./routes/posts");
+
 const port = process.env.PORT || 8000;
 
 // Middelwares
@@ -21,6 +24,7 @@ app.use(morgan("dev"));
 app.use(bodyparser.json());
 //Routes
 app.use("/users", users);
+app.use("/posts", posts);
 app.get("/", (req, res) => {
   res.send("Hi there");
 });

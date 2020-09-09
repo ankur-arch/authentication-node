@@ -2,9 +2,13 @@ const express = require("express");
 const router = require("express-promise-router")();
 const passport = require("passport");
 const usersController = require("../controllers/users");
-const { validateBody, schemas } = require("../validator/bodyValidator");
+const {
+  validateEmail,
+  validateBody,
+  schemas,
+} = require("../validator/bodyValidator");
 const passportConfig = require("../passport"); // include passport configurations
-const e = require("express");
+const { roleAllowed } = require("../permissions/general-permissions");
 
 router
   .route("/signup")
@@ -36,9 +40,14 @@ router.route("/signin").post(
 );
 
 router
+  .route("/forgotpassword")
+  .post(validateEmail(schemas.emailSchema), usersController.forgetPasswordPost);
+
+router
   .route("/secret")
   .get(
     passport.authenticate("jwt", { session: false }),
+    roleAllowed("batpar"),
     usersController.secret
   );
 
